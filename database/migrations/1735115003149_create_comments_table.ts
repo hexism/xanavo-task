@@ -1,26 +1,27 @@
-import tables from '#config/tables'
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import { CommentStatuses } from '#models/comment'
+import tables from '#config/tables'
 
 export default class extends BaseSchema {
-  protected tableName = tables.accessTokens.root
+  protected tableName = tables.comments.root
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.increments('id').notNullable()
       table
-        .integer('tokenable_id')
+        .integer('user_id')
         .unsigned()
         .references(`${tables.users.root}.id`)
         .onDelete('cascade')
         .notNullable()
-      table.string('type').notNullable()
-      table.string('name').nullable()
-      table.string('hash').notNullable()
-      table.text('abilities').notNullable()
+      table
+        .enum('status', Object.values(CommentStatuses))
+        .defaultTo(CommentStatuses.DISAPPROVED)
+        .index()
+        .notNullable()
+      table.string('body').index()
       table.timestamp('created_at')
       table.timestamp('updated_at')
-      table.timestamp('last_used_at').nullable()
-      table.timestamp('expires_at').nullable()
     })
   }
 
