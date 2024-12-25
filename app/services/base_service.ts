@@ -7,8 +7,8 @@ export type TSortOrder = 'asc' | 'desc'
 export default class BaseService {
   protected ctx: HttpContext | null
   protected queryString: Record<string, any> | undefined
-  protected page: number
-  protected perPage: number
+  protected page: number = 1
+  protected perPage: number = 15
   protected count: number = 10
   protected sortBy: TSortBy = 'created_at'
   protected sortOrder: TSortOrder = 'desc'
@@ -16,14 +16,10 @@ export default class BaseService {
   constructor() {
     this.ctx = HttpContext.get()
     this.queryString = this.ctx?.request.qs()
-    this.page = this.queryString?.page && this.queryString?.page >= 1 ? this.queryString?.page : 1
-    const count: number = parseInt(this.queryString?.count)
-    if (this.queryString?.count && !Number.isNaN(count) && count <= 100)
-      this.count = parseInt(this.queryString?.count)
-    if (this.queryString?.perPage) {
-      this.perPage = this.queryString.perPage
-    } else this.perPage = 15
-    this.sortOrder = this.queryString?.sortOrder ?? 'desc'
+    if (this.queryString?.page) this.page = this.queryString.page
+    if (this.queryString?.count) this.count = parseInt(this.queryString.count)
+    if (this.queryString?.perPage) this.perPage = this.queryString.perPage
+    if (this.queryString?.sortOrder) this.sortOrder = this.queryString.sortOrder
   }
 
   protected getUser(): User | undefined {
