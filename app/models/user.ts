@@ -7,6 +7,7 @@ import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import Role from './role.js'
 import Comment from './comment.js'
+import datetimeSerializer from '#serializers/datetime_serializer'
 import tables from '#config/tables'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
@@ -32,13 +33,17 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column({ serializeAs: null })
   declare password: string
 
-  @column.dateTime({ autoCreate: true })
+  @column.dateTime({ autoCreate: true, serialize: datetimeSerializer })
   declare createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @column.dateTime({ autoCreate: true, autoUpdate: true, serialize: datetimeSerializer })
   declare updatedAt: DateTime | null
 
-  static accessTokens = DbAccessTokensProvider.forModel(User)
+  static accessTokens = DbAccessTokensProvider.forModel(User, {
+    table: tables.accessTokens.root,
+    expiresIn: '1 day',
+    prefix: 'xanova_',
+  })
 
   @manyToMany(() => Role, {
     pivotTable: tables.users.roles,
