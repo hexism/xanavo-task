@@ -15,6 +15,11 @@ export default class extends BaseSchema {
         .onDelete('cascade')
         .notNullable()
       table
+        .integer('parent_id')
+        .unsigned()
+        .references(`${tables.comments.root}.id`)
+        .onDelete('cascade')
+      table
         .enum('status', Object.values(CommentStatuses))
         .defaultTo(CommentStatuses.DISAPPROVED)
         .index()

@@ -3,6 +3,7 @@ import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import { errors as coreErrors } from '@adonisjs/core'
 import { errors as lucidErrors } from '@adonisjs/lucid'
 import { errors as authErrors } from '@adonisjs/auth'
+import { errors as bouncerErrors } from '@adonisjs/bouncer'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -32,6 +33,11 @@ export default class HttpExceptionHandler extends ExceptionHandler {
       return ctx.response.notFound({
         message: 'Route not found.',
       })
+    if (error instanceof bouncerErrors.E_AUTHORIZATION_FAILURE) {
+      return ctx.response.forbidden({
+        message: 'Access denied.',
+      })
+    }
     if (error?.status >= 500)
       return ctx.response.serviceUnavailable({
         message: 'Service unavailable, Please type again later.',
